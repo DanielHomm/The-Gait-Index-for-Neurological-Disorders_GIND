@@ -1,1 +1,1 @@
-# The-Gait-Index-for-Neurological-Disorders-GIN
+# The-Gait-Index-for-Neurological-Disorders: GIND
