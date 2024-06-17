@@ -3,8 +3,6 @@ import pandas as pd
 import kineticstoolkit.lab as ktk
 import numpy as np
 import os
-from scipy.signal import savgol_filter
-from scipy.interpolate import interp1d
 
 from utils.force.gc_grf_ges_mw import construct_gc_grf_ges, process_grf_data
 from utils.force.gc_cop_ges_MW import construct_gc_cop_ges, process_cop_data
@@ -19,18 +17,18 @@ from utils.marker.emg_data import construct_emg_roh, construct_emg_bear, constru
 
 # https://github.com/Biomechanical-ToolKit/BTKPython/issues/2
 # https://github.com/conda-forge/btk-feedstock
-# can be installed with conda install -c conda-forge btk
+# can be installed with conda install -c conda-forge btk, currently only available for Python < 3.12
 import btk
 
 def create_data_dicts_btk(c3d_file):
     """
-    This function reads the c3d file and stores its data in dictionaries
+    This function reads the c3d file and stores its data in Python dictionaries
     
-    args: c3d_file: path to c3d dynamic file
+    args: c3d_file path to c3d dynamic file: str
     
     returns: V_analysis: dictionary with walk-parameters
-            meta_data: meta data of the c3d file
-            ff: first frame
+            meta_data, meta data of the c3d file: btkMetaData
+            ff, first frame: int
     """
     reader = btk.btkAcquisitionFileReader()
     reader.SetFilename(c3d_file)
@@ -60,15 +58,15 @@ def create_data_dicts_kinetics(c3d_file, c3d_file_stat):
     """
     This function reads the c3d files and stores its data in dictionaries
     
-    args: c3d_file: path to c3d dynamic file
-            c3d_file_stat: path to c3d static file
+    args: c3d_file, path to c3d dynamic file: str
+            c3d_file_stat, path to c3d static file: str
     
     return: ang: dictionary with angles
                 ev: dictionary with events
                 force: dictionary with forces
                 force_sr: sampling rate of the forces
                 mark: dictionary with markers
-                mark_freq: sampling rate of the markers
+                mark_freq: sampling rate of the markers (int)
                 V_analysis: dictionary with walk-parameters
                 ana: dictionary with analog data
                 mom: dictionary with moments
@@ -101,9 +99,20 @@ def create_data_dicts_kinetics(c3d_file, c3d_file_stat):
     return ang, ev, force, force_sr, mark, mark_freq, ana, mom, power, ana_stat
 
 
-def patient_data(m_eing=88, h_eing=1860):
-    m_eing=m_eing     # in Nexus hinterlegtes Körpergewicht
-    h_eing=h_eing     # in Nexus hinterlegte Körpergröße
+def participant_data(m_eing=88, h_eing=1860):
+    """
+    This function returns the data needed from the corresponding participant.
+    (In our case the in Nexus set Bodyweight and Bodyheight)
+
+    args:   m_eing Bodyweight: int
+            h_eing Bodyheight: int
+
+    returns:
+            m_eing Bodyweight: int
+            h_eing Bodyheight: int
+    """
+    m_eing=m_eing     # Bodyweight
+    h_eing=h_eing     # Bodyheight
     return m_eing, h_eing
 
 def get_strikes(ev, mark_freq, ff):
@@ -183,7 +192,38 @@ def create_gz_counter(force_key, gc_xvec, num_gc, num_gc_ges, force, SW_GRFz=1.0
                 gz_counter.append(i)
     return gz_counter
 
-def load_data(c3d_file, c3d_file_stat):
+def load_data(c3d_file, c3d_file_stat, m_eing=None, h_eing=None):
+    """
+    Function to combine the read data functions and general varaible definitions and return all needed data dictionaries.
+
+    args:   c3d_file: path to c3d dynamic file
+            c3d_file_stat: path to c3d static file
+            m_eing: Bodyweight of the participant (set in Nexus)
+            h_eing: Bodyheight of the participant (set in Nexus)
+    
+    returns:    ang: dictionary with angles  
+                ev: dictionary with events
+                force: dictionary with forces
+                force_sr: sampling rate of the forces
+                mark: dictionary with markers
+                mark_freq: sampling rate of the markers
+                V_analysis: dictionary with walk-parameters
+                ana: dictionary with analog data
+                mom: dictionary with moments
+                power: dictionary with power
+                ana_stat: dictionary with static analog data
+                m_eing: Bodyweight of the participant
+                h_eing: Bodyheight of the participant
+                R_num_gc_ges: number of gait cycles for the right foot
+                L_num_gc_ges: number of gait cycles for the left foot
+                gz_counter_R_ges: counter for the right foot
+                gz_counter_L_ges: counter for the left foot
+                SW_GRFz: threshold for the ground reaction force
+                trial: trial name
+                meta_data: meta data of the c3d file
+                ff: first frame
+    """
+
     # variables definition
     SW_GRFz = 1
     R_num_gc_ges = 0
@@ -195,8 +235,12 @@ def load_data(c3d_file, c3d_file_stat):
     # where are these defined as 3? I thought they are defined as 0!?!?!?
     gz_counter_R_ges = 0
     gz_counter_L_ges = 0
-
-    m_eing, h_eing = patient_data()
+    
+    if m_eing and h_eing:
+        m_eing, h_eing = participant_data(m_eing, h_eing)
+    else:
+        m_eing, h_eing = participant_data()
+    
     ang, ev, force, force_sr, mark, mark_freq, ana, mom, power, ana_stat = create_data_dicts_kinetics(c3d_file, c3d_file_stat)
     V_analysis, meta_data, ff = create_data_dicts_btk(c3d_file)
 
@@ -204,7 +248,16 @@ def load_data(c3d_file, c3d_file_stat):
 
 
 def read_force_data(c3d_file, c3d_file_stat):
-    ang, ev, force, force_sr, mark, mark_freq, V_analysis, ana, mom, power, ana_stat, m_eing, h_eing, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, meta_data, ff = load_data(c3d_file, c3d_file_stat)
+    """
+    This function reads the force data from the c3d file and processes it to be used in the further analysis.
+
+    args:   c3d_file: path to c3d dynamic file
+            c3d_file_stat: path to c3d static file
+
+    returns:    force_data: Dictionary with the processed force data. Each key holds a pandas dataframe with the corresponding data.
+    """
+
+    ang, ev, force, _, _, mark_freq, _, ana, mom, power, ana_stat, m_eing, _, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, _, ff = load_data(c3d_file, c3d_file_stat)
     # Assuming ana_stat is a dictionary containing the necessary data
     mass_Korr = 1  # Default value if no mass determination through static
     if 'Force.Fz1' in ana_stat:
@@ -268,8 +321,8 @@ def read_force_data(c3d_file, c3d_file_stat):
     L_gc_cop_ges_MW = process_cop_data(L_gc_cop_ges, L_gc_ang_ges, gz_counter_L_ges, cut_off_frame, side='L')
 
     # Line 2766
-    R_gc_akh_ges_MW = process_akh_data(R_gc_akh_ges, gz_counter_R_ges, side='R')
-    L_gc_akh_ges_MW = process_akh_data(L_gc_akh_ges, gz_counter_L_ges, side='L')
+    R_gc_akh_ges_MW = process_akh_data(R_gc_akh_ges, gz_counter_R_ges)
+    L_gc_akh_ges_MW = process_akh_data(L_gc_akh_ges, gz_counter_L_ges)
 
     # Line 2950
     R_gc_pow_ges_MW = process_pow_data(R_gc_pow_ges, len(gz_counter_R))
@@ -283,7 +336,15 @@ def read_force_data(c3d_file, c3d_file_stat):
 
 
 def read_marker_data(c3d_file, c3d_file_stat):
-    ang, ev, force, force_sr, mark, mark_freq, V_analysis, ana, mom, power, ana_stat, m_eing, h_eing, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, meta_data, ff = load_data(c3d_file, c3d_file_stat)
+    """
+    This function reads the marker data from the c3d files and processes it to be used in the further analysis.
+
+    args:   c3d_file: path to c3d dynamic file
+            c3d_file_stat: path to c3d static file
+
+    returns:    force_data: Dictionary with the processed force data. Each key holds a pandas dataframe with the corresponding data.
+    """
+    ang, ev, force, force_sr, mark, mark_freq, _, ana, _, _, _, _, _, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, _, ff = load_data(c3d_file, c3d_file_stat)
 
     R_Strike, R_ToeOff, L_Strike, L_ToeOff, fto_gc_R, fto_gc_L = get_strikes(ev, mark_freq, ff)
     
@@ -295,8 +356,8 @@ def read_marker_data(c3d_file, c3d_file_stat):
     L_gc_xvec = create_xvec(trial, L_Strike, L_ToeOff, num_gc_L, fto_gc_L, L_num_gc_ges)
 
     # Line 398
-    R_gc_para = construct_gc_para(R_gc_xvec, num_gc_R, R_Strike, R_ToeOff, trial, mark, fto_gc_R, L_Strike, L_ToeOff, mark_freq, side='R')
-    L_gc_para = construct_gc_para(L_gc_xvec, num_gc_L, L_Strike, L_ToeOff, trial, mark, fto_gc_L, R_Strike, R_ToeOff, mark_freq, side='L')
+    R_gc_para = construct_gc_para(num_gc_R, R_Strike, R_ToeOff, trial, mark, fto_gc_R, L_Strike, L_ToeOff, mark_freq, side='R')
+    L_gc_para = construct_gc_para(num_gc_L, L_Strike, L_ToeOff, trial, mark, fto_gc_L, R_Strike, R_ToeOff, mark_freq, side='L')
 
     # Line 605
     gz_counter_R = create_gz_counter('RGroundReactionForce', R_gc_xvec, num_gc_R, R_num_gc_ges, force, SW_GRFz=SW_GRFz)
@@ -311,8 +372,8 @@ def read_marker_data(c3d_file, c3d_file_stat):
     L_gc_ang_bew_ges = construct_gc_ang_bew_ges(L_gc_ang_ges, num_gc_L, trial)
 
     # Line 1529
-    EMG_R_roh = construct_emg_roh(trial, R_Strike, R_ToeOff, ana, num_gc_R, mark_freq, 'R')
-    EMG_L_roh = construct_emg_roh(trial, L_Strike, L_ToeOff, ana, num_gc_L, mark_freq, 'L')
+    EMG_R_roh = construct_emg_roh(trial, R_Strike, R_ToeOff, ana, num_gc_R, mark_freq)
+    EMG_L_roh = construct_emg_roh(trial, L_Strike, L_ToeOff, ana, num_gc_L, mark_freq)
 
     # Line 1643
     R_gc_com_ges = construct_gc_com_ges(R_gc_xvec, num_gc_R, R_Strike, R_ToeOff, trial, mark, fto_gc_R)
@@ -357,6 +418,7 @@ def read_marker_data(c3d_file, c3d_file_stat):
     return marker_data
 
 
+"""
 if __name__ == "__main__":
 
     laptop= r'D:\TUM-HIWI\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody'
@@ -368,3 +430,4 @@ if __name__ == "__main__":
 
     force_data = create_force_data(c3d_file, c3d_file_stat)
     #marker_data = create_marker_data(c3d_file, c3d_file_stat)
+"""
