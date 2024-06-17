@@ -4,6 +4,14 @@ from scipy.interpolate import interp1d
 
 
 def construct_gc_ang_ges(gc_xvec, num_gc_ges, Strike, ToeOff, ang, prefix, trial):
+    """
+    This function reads and prepares the angle data for the right and left foot.
+
+    args: gc_xvec: DataFrame, num_gc_ges: int, Strike: list, ToeOff: list, ang: dict, prefix: str, trial: str
+
+    return: gc_ang_ges: DataFrame
+    """
+
     columns = [
         'label', 'x-Werte', 'Ankle 1 Flexion', 'Ankle 2 Inversion', 'Ankle 3 Rotation',
         'Knee 1 Flexion', 'Knee 2 Adduktion', 'Knee 3 Rotation', 'Hip 1 Flexion',
@@ -75,6 +83,15 @@ def construct_gc_ang_ges(gc_xvec, num_gc_ges, Strike, ToeOff, ang, prefix, trial
     return gc_ang_ges
 
 def process_ang_data(ang_ges, num_gc_ges):
+    """
+    This function further processes the angle data for the right and left foot.
+    Also calculates the mean and standard deviation of the angle data.
+
+    args: ang_ges: DataFrame, num_gc_ges: int
+
+    return: ang_ges_MW: DataFrame
+    """
+
     columns_ang_MW = [
         'Label', 'x-Werte', 'Ankle 1 Flexion', 'Ankle 2 Inversion', 'Ankle 3 Rotation',
         'Knee 1 Flexion', 'Knee 2 Adduktion', 'Knee 3 Rotation', 'Hip 1 Flexion', 'Hip 2 Adduktion',

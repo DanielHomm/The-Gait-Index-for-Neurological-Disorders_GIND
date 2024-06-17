@@ -2,6 +2,13 @@ import pandas as pd
 from scipy.signal import savgol_filter
 
 def construct_gc_cop_ges(gc_counter, gc_counter_ges, num_gc_ges, gc_xvec, Strike, ToeOff, fto_gc, trial, ana, cut_off_frame):
+    """
+    This function reads and prepares the center of pressure data for the right and left foot.
+
+    args: gc_counter: list, gc_counter_ges: int, num_gc_ges: int, gc_xvec: DataFrame, Strike: list, ToeOff: list, fto_gc: int, trial: str, ana: DataFrame, cut_off_frame: int
+
+    return: gc_cop_ges: DataFrame
+    """
     columns_cop = ['Trial', 'x-Werte 0-100%', 'x Frames', 'strikes', 'toeoffs', 
                    'x CoP', 'y CoP', 'x CoP filt', 'y CoP filt', 'x-Werte 0-100% gekürzt']
     gc_cop_ges = pd.DataFrame(columns=columns_cop)
@@ -49,7 +56,14 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 def process_cop_data(gc_cop_ges, gc_ang_ges, gz_counter_ges, cut_off_frame, side="R"):
+    """
+    This function further processes the center of pressure data for the right and left foot.
+    Also caclualtes the mean and standard deviation of the ground reaction force data.
 
+    args: gc_cop_ges: DataFrame, gc_ang_ges: DataFrame, gz_counter_ges: int, cut_off_frame: int, side: str ("R" or "L")
+
+    returns: gc_cop_ges_MW: DataFrame
+    """
     if side not in ["R", "L"]:
         raise ValueError("side must be either 'R' or 'L'")
 

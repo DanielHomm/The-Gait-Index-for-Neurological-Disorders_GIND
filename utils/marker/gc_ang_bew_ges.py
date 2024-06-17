@@ -1,8 +1,14 @@
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-
 def construct_gc_ang_bew_ges(ang_ges, num_gc_ges, trial):
+    """
+    This function reads and prepares the Winkel-Bewegungsumfänge for the right and left foot.
+
+    args: ang_ges: DataFrame, num_gc_ges: int, trial: str
+
+    return: ang_bew_ges: DataFrame
+    """
     columns_bew = [
         'Trial', '', 'Ankle 1 Flexion', 'Ankle 2 Inversion', 'Ankle 3 Rotation',
         'Knee 1 Flexion', 'Knee 2 Adduktion', 'Knee 3 Rotation', 'Hip 1 Flexion', 'Hip 2 Adduktion',

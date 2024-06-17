@@ -3,7 +3,15 @@ from scipy.signal import butter, filtfilt
 from scipy.interpolate import interp1d
 import numpy as np
 
-def construct_emg_roh(trial, Strike, ToeOff, ana, num_gc, mark_freq, prefix):
+def construct_emg_roh(trial, Strike, ToeOff, ana, num_gc, mark_freq):
+    """
+    This function reads and prepares the roh EMG data for the right and left foot.
+
+    arg: trial: str, Strike: list, ToeOff: list, ana: DataFrame, num_gc: int, mark_freq: int
+
+    return: emg_roh: DataFrame
+    """
+
     if num_gc < 1:
         return pd.DataFrame()
 
@@ -44,10 +52,26 @@ def construct_emg_roh(trial, Strike, ToeOff, ana, num_gc, mark_freq, prefix):
 
 
 def butter_filter(data, cutoff, btype, order=2):
+    """
+    This function first applies a Butterworth filter to the given arguments and then applies a forward-backward filter to the data.
+    (Care filtfilt results in different values as in matlab. However the distribution seems to stay similar)
+
+    args: data: array, cutoff: float, btype: str, order: int
+
+    return: scipy.signal.filtfilt(b, a, data)
+    """
     b, a = butter(order, cutoff, btype=btype)
     return filtfilt(b, a, data)
 
 def construct_emg_bear(emg_roh, fcuthigh, fcutlow, fcutenv, force_sr=1000, n=0):
+    """
+    This function reads and prepares the bear EMG data for the right and left foot.
+
+    args: emg_roh: DataFrame, fcuthigh: float, fcutlow: float, fcutenv: float, force_sr: int, n: int
+
+    return: emg_bear: DataFrame
+    """
+
     emg_bear = emg_roh.copy()
     force_sr = force_sr
 
@@ -84,11 +108,17 @@ def construct_emg_bear(emg_roh, fcuthigh, fcutlow, fcutenv, force_sr=1000, n=0):
     return emg_bear
 
 def construct_emg_new(emg_bear, mark_freq, gz_counter_ges):
-    # Define the columns for the DataFrame
+    """
+    This function reads and prepares the new EMG data for the right and left foot.
+
+    args: emg_bear: DataFrame, mark_freq: int, gz_counter_ges: int
+
+    return: emg_new: DataFrame
+    """
+
     columns = ['Label', 'x-Werte normalisiert [s]', 'GM L', 'GM R', 'RF L', 'RF R', 'BF L', 'BF R', 'Tensor L', 'Tensor R', 'Times toe offs']
     emg_new = pd.DataFrame(columns=columns)
     
-    # Initialize the DataFrame and set labels
     for i in range(gz_counter_ges + 3):
         row = [None] * len(columns)
         if i == gz_counter_ges:
@@ -116,7 +146,6 @@ def construct_emg_new(emg_bear, mark_freq, gz_counter_ges):
                 time_curr_norm_old = (time_curr - strikes_curr[r]) / time_curr_length * 100
                 emg_old = np.array(emg_bear.iloc[n, i])
                 frames_curr = time_curr - strikes_curr[0] + 1
-                #interp_func = interp1d(time_curr_norm_old, emg_old[frames_curr-1], kind='cubic', fill_value='extrapolate')
                 interp_func = interp1d(time_curr_norm_old, emg_old[frames_curr], kind='cubic', fill_value='extrapolate')
                 if i < len(columns) - 1:
                     emg_new.iloc[r, i] = interp_func(time_curr_norm_new)
@@ -134,19 +163,19 @@ def construct_emg_new(emg_bear, mark_freq, gz_counter_ges):
         emg_new.iloc[gz_counter_ges + 1, i] = mean_value - std_value
         emg_new.iloc[gz_counter_ges + 2, i] = mean_value + std_value
 
-        #mean_col = np.mean(emg_new.iloc[:gz_counter_ges, i])
-        #std_col = np.std(emg_new.iloc[:gz_counter_ges, i])
-
-        #emg_new.iloc[gz_counter_ges, i] = mean_col
-        #emg_new.iloc[gz_counter_ges + 1, i] = mean_col - std_col
-        #emg_new.iloc[gz_counter_ges + 2, i] = mean_col + std_col
-
     return emg_new
 
 
 
 def construct_emg_newonoff(emg_new, num_gc_ges):
-    # Initialize the DataFrame with the given structure
+    """
+    This function reads and prepares the new (on/off) EMG data for the right and left foot.
+
+    args: emg_new: DataFrame, num_gc_ges: int
+
+    return: emg_newonoff: DataFrame
+    """
+
     columns = ['Label', 'x-Werte normalisiert [s]', 'GM L', 'GM R', 'RF L', 'RF R', 'BF L', 'BF R', 'Tensor L', 'Tensor R', 'Times toe offs']
     emg_newonoff = pd.DataFrame(columns=columns)
     

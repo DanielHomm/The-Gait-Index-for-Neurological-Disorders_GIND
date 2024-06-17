@@ -1,8 +1,15 @@
 import pandas as pd
 import numpy as np
 
-# Kati nachfragen nach den bounds, ob die immer gleich sind
 def construct_norm_gc_para():
+    """
+    This function constructs the normal gait cycle parameters DataFrame using predefined values.
+    
+    args: None
+
+    returns: norm_gc_para: DataFrame
+    """
+
     columns = [
         'Parameter', 'Standphase [%]', 'Doppelschrittlänge [Frames]', 'Doppelschrittlänge [mm], in Bezug auf RHEE',
         'Schrittlänge [mm]', 'Spurbreite [mm]', 'Einzelschrittzeit [s]', 'Doppelschrittzeit [s]', 'Einzelstützzeit [s]',

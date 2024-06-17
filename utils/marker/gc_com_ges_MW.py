@@ -3,6 +3,14 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 def construct_gc_com_ges(gc_xvec, num_gc, Strike, ToeOff, trial, mark, fto_gc):
+    """
+    This function reads and prepares the center of mass data for the right and left foot.
+
+    args: gc_xvec: DataFrame, num_gc: int, Strike: list, ToeOff: list, trial: str, mark: dict, fto_gc: int
+
+    return: com_ges: DataFrame
+    """
+    
     columns_com = ['Trial', 'x-Werte', 'x CoM', 'y CoM', 'z CoM', 'strikes', 'toe offs', 'frames x']
     com_ges = pd.DataFrame(columns=columns_com)
 
@@ -35,6 +43,15 @@ def construct_gc_com_ges(gc_xvec, num_gc, Strike, ToeOff, trial, mark, fto_gc):
 
 
 def process_com_data(com_ges, num_gc_ges):
+    """
+    This function further processes the center of mass data for the right and left foot.
+    Also calculates the mean and standard deviation of the center of mass data.
+
+    args: com_ges: DataFrame, num_gc_ges: int
+
+    return: com_ges_MW: DataFrame
+    """
+
     columns_com_MW = ['Label', 'x-Werte', 'x CoM', 'y CoM', 'z CoM', 'toe offs']
     com_ges_MW = pd.DataFrame(columns=columns_com_MW)
 

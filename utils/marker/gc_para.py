@@ -2,8 +2,15 @@
 import numpy as np
 import pandas as pd
 
-def construct_gc_para(gc_xvec, num_gc, Strike, ToeOff, trial, mark, fto_gc, other_Strike, other_ToeOff, mark_freq, side='R'):
-    # Initialize the columns
+def construct_gc_para(num_gc, Strike, ToeOff, trial, mark, fto_gc, other_Strike, other_ToeOff, mark_freq, side='R'):
+    """
+    This function constructs the gait parameters DataFrame.
+
+    args: num_gc: int, Strike: list, ToeOff: list, trial: str, mark: DataFrame, fto_gc: int, other_Strike: list, other_ToeOff: list, mark_freq: int, side: str
+
+    returns: gc_para: DataFrame
+    """
+
     columns_para = [
         'Trial', 'Standphase [%]', 'Doppelschrittlänge [Frames]', 'Doppelschrittlänge [mm], in Bezug auf HEEL',
         'Schrittlänge [mm]', 'Spurbreite [mm]', 'Einzelschrittzeit [s]', 'Doppelschrittzeit [s]',
@@ -98,7 +105,3 @@ def construct_gc_para(gc_xvec, num_gc, Strike, ToeOff, trial, mark, fto_gc, othe
     gc_para.loc[num_gc + 1] = std_row
 
     return gc_para
-
-# Example usage
-
-print("R_gc_para and L_gc_para are created successfully.")

@@ -4,7 +4,13 @@ from scipy.interpolate import interp1d
 
 # Function to construct the DataFrame
 def construct_akh_ges(gz_counter, num_gc_ges, gc_xvec, Strike, ToeOff, fto_gc, trial, force, mom, mass_Korr, prefix):
+    """
+    This function reads and prepares the Ankle, Knee, Hip Moments and Forces for the right and left foot.
 
+    args: gz_counter: list, num_gc_ges: int, gc_xvec: DataFrame, Strike: list, ToeOff: list, fto_gc: int, trial: str, force: dict, mom: dict, mass_Korr: float
+
+    return: akh_ges: DataFrame
+    """
     columns_akh = ['Trial', 'x-Werte', '1 (y) Ankle Force', '2 (x) Ankle Force', '3 (z) Ankle Force',
                '1 (y) Knee Force', '2 (x) Knee Force', '3 (z) Knee Force',
                '1 (y) Hip Force', '2 (x) Hip Force', '3 (z) Hip Force',
@@ -112,7 +118,16 @@ def construct_akh_ges(gz_counter, num_gc_ges, gc_xvec, Strike, ToeOff, fto_gc, t
     return akh_ges
 
 # Interpolation AKH Kräfte und Momente für Mittelwertskurve
-def process_akh_data(gc_akh_ges, gz_counter_ges, side='R'):
+def process_akh_data(gc_akh_ges, gz_counter_ges):
+    """
+    This function further processes the Ankle, Knee, Hip Moments and Forces for the right and left foot.
+    Also calculates the mean and standard deviation of the Ankle, Knee, Hip Moments and Forces.
+
+    args: gc_akh_ges: DataFrame, gz_counter_ges: int
+
+    return: gc_akh_ges_MW: DataFrame
+    """
+
     columns_akh_mw = ['label', 'x-Werte', '1 (y) Ankle Force', '2 (x) Ankle Force', '3 (z) Ankle Force',
                       '1 (y) Knee Force', '2 (x) Knee Force', '3 (z) Knee Force', '1 (y) Hip Force',
                       '2 (x) Hip Force', '3 (z) Hip Force', '1 (y) Waist Force', '2 (x) Waist Force',

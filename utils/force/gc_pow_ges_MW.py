@@ -2,10 +2,14 @@ import pandas as pd
 import numpy as np
 from scipy.interpolate import interp1d
 
-# Abspeicherung Gelenkleistung
-
-# Function to construct the DataFrame
 def construct_pow_ges(gz_counter, num_gc_ges, gc_xvec, Strike, ToeOff, fto_gc, trial, power, mass_Korr, prefix):
+    """
+    This function reads and prepares the Ankle, Knee, Hip Power data for the right and left foot.
+
+    args: gz_counter: list, num_gc_ges: int, gc_xvec: DataFrame, Strike: list, ToeOff: list, fto_gc: int, trial: str, power: dict, mass_Korr: float, prefix: str
+
+    return: pow_ges: DataFrame
+    """
     columns_pow = ['Trial', 'x-Werte', 'Ankle Power', 'Knee Power', 'Hip Power', 'Waist Power',
                'Shoulder Power', 'Elbow Power', 'Wrist Power', 'strikes', 'toe offs', 'frames x']
     
@@ -41,6 +45,15 @@ def construct_pow_ges(gz_counter, num_gc_ges, gc_xvec, Strike, ToeOff, fto_gc, t
     return pow_ges
 
 def process_pow_data(gc_pow_ges, gz_counter_ges):
+    """
+    This function further processes the Ankle, Knee, Hip Power data for the right and left foot.
+    Also calculates the mean and standard deviation of the Ankle, Knee, Hip Power data.
+
+    args: gc_pow_ges: DataFrame, gz_counter_ges: int
+
+    return: gc_pow_ges_MW: DataFrame
+    """
+
     columns_pow_MW = ['label', 'x-Werte', 'Ankle Power', 'Knee Power', 'Hip Power', 'Waist Power',
                       'Shoulder Power', 'Elbow Power', 'Wrist Power', 'toe offs']
 

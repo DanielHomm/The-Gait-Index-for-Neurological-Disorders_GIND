@@ -4,7 +4,11 @@ from scipy.interpolate import interp1d
 
 def construct_gc_grf_ges(trial, force, gz_counter, gz_counter_ges, gc_xvec, fto_gc, grf_key, norm_grf_key, strike, toe_off, num_gc_ges, mass_Korr):
     """
-    This function 
+    This function reads and prepairs the ground reaction force data for the right and left foot.
+
+    args: trial: str, force: dict, gz_counter: list, gz_counter_ges: int, gc_xvec: DataFrame, fto_gc: int, grf_key: str, norm_grf_key: str, strike: list, toe_off: list, num_gc_ges: int, mass_Korr: float
+
+    returns: gc_grf_ges: DataFrame
     """
     # Define columns for the DataFrame
     columns_grf = ['Trial', 'x-Werte', 'x GRF force', 'y GRF force', 'z GRF force',
@@ -45,6 +49,14 @@ def construct_gc_grf_ges(trial, force, gz_counter, gz_counter_ges, gc_xvec, fto_
 
 
 def process_grf_data(gz_counter_ges, gc_grf_ges):
+    """
+    This function further processes the ground reaction force data for the right and left foot.
+    Also caclualtes the mean and standard deviation of the ground reaction force data.
+
+    args: gz_counter_ges: int, gc_grf_ges: DataFrame
+
+    returns: gc_grf_ges_MW: DataFrame
+    """
 
     columns_grf = ['Label', 'x-Werte', 'x GRF force', 'y GRF force', 'z GRF force',
                'normalized x GRF force', 'normalized y GRF force', 'normalized z GRF force', 'toe offs']
