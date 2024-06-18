@@ -416,18 +416,3 @@ def read_marker_data(c3d_file, c3d_file_stat):
     marker_data = {"R_gc_com_ges_MW": R_gc_com_ges_MW, "L_gc_com_ges_MW": L_gc_com_ges_MW, "R_gc_ang_ges_MW": R_gc_ang_ges_MW, "L_gc_ang_ges_MW": L_gc_ang_ges_MW, "R_gc_ang_bew_ges": R_gc_ang_bew_ges, "L_gc_ang_bew_ges": L_gc_ang_bew_ges, "mark": mark, "right_EMG_new": right_EMG_new, "left_EMG_new": left_EMG_new, "EMG_R_roh": EMG_R_roh, "EMG_L_roh": EMG_L_roh, "EMG_R_bear": EMG_R_bear, "EMG_L_bear": EMG_L_bear, "R_gc_para": R_gc_para, "L_gc_para": L_gc_para, "right_EMG_newonoff": right_EMG_newonoff, "left_EMG_newonoff": left_EMG_newonoff, "gc_count_mark": gc_count_mark}
 
     return marker_data
-
-
-"""
-if __name__ == "__main__":
-
-    laptop= r'D:\TUM-HIWI\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody'
-    pc =  r'C:\UNI\HIWI\TUM\HIWI_SPM\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody'
-
-    c3d_file = os.path.join(pc, 'dyn01.c3d')
-    # path c3d file with static data
-    c3d_file_stat = os.path.join(pc, 'stat01.c3d')
-
-    force_data = create_force_data(c3d_file, c3d_file_stat)
-    #marker_data = create_marker_data(c3d_file, c3d_file_stat)
-"""
