@@ -1,4 +1,4 @@
-# The-Gait-Index-for-Neurological-Disorders: GIND
+# The Gait Index for Neurological Disorders: GIND
 
 This repository includes a script to calculate the Gait Index for Neurological Disorders: Gind.
 
