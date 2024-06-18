@@ -27,16 +27,17 @@ def construct_gc_grf_ges(trial, force, gz_counter, gz_counter_ges, gc_xvec, fto_
             x_Werte = gc_xvec.iloc[num_gc_ges + gz_counter[i], 3]  # 'x-Werte'
 
             if force[grf_key][round(gc_xvec.iloc[num_gc_ges + gz_counter[i], 6]), 1] <= 0:
-                x_GRF = force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 0] * mass_Korr
-                y_GRF = force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 1] * mass_Korr
+                x_GRF = np.nan_to_num(force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 0]) * mass_Korr
+                y_GRF = np.nan_to_num(force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 1]) * mass_Korr
             else:
-                x_GRF = -force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 0] * mass_Korr
-                y_GRF = -force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 1] * mass_Korr
 
-            z_GRF = force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 2] * mass_Korr
-            normalized_x_GRF = force[norm_grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 0] * mass_Korr
-            normalized_y_GRF = force[norm_grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 1] * mass_Korr
-            normalized_z_GRF = force[norm_grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 2] * mass_Korr
+                x_GRF = -np.nan_to_num(force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 0]) * mass_Korr
+                y_GRF = -np.nan_to_num(force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 1]) * mass_Korr
+
+            z_GRF = np.nan_to_num(force[grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 2]) * mass_Korr
+            normalized_x_GRF = np.nan_to_num(force[norm_grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 0]) * mass_Korr
+            normalized_y_GRF = np.nan_to_num(force[norm_grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 1]) * mass_Korr
+            normalized_z_GRF = np.nan_to_num(force[norm_grf_key][gc_xvec.iloc[num_gc_ges + gz_counter[i], 1], 2]) * mass_Korr
 
             strikes = strike[gz_counter[i]:gz_counter[i]+2] - strike[gz_counter[i]] + 1
             toeoffs = toe_off[fto_gc - 1 + gz_counter[i]] - strike[gz_counter[i]] + 1
@@ -72,7 +73,6 @@ def process_grf_data(gz_counter_ges, gc_grf_ges):
         grf_old_norm_y = gc_grf_ges.iloc[n, 6]
         grf_old_norm_z = gc_grf_ges.iloc[n, 7]
         strikes_curr = gc_grf_ges.iloc[n, 8]
-
         x_range_old = np.linspace(np.min(grf_old_x), np.max(grf_old_x), len(grf_old_x))
         x_range_new = np.linspace(np.min(grf_old_x), np.max(grf_old_x), 201)
         y_range_old = np.linspace(np.min(grf_old_y), np.max(grf_old_y), len(grf_old_y))
@@ -86,8 +86,6 @@ def process_grf_data(gz_counter_ges, gc_grf_ges):
         grf_new_norm_z = interp1d(x_range_old, grf_old_norm_z, kind='cubic', fill_value='extrapolate')(x_range_new)
 
         gc_grf_ges_MW.loc[n] = ["", np.arange(0, 100.5, 0.5), grf_new_x, grf_new_y, grf_new_z, grf_new_norm_x, grf_new_norm_y, grf_new_norm_z, gc_grf_ges.iloc[n, 9] / strikes_curr[1] * 100]
-
-        print()
 
         gc_grf_ges_MW.loc[gz_counter_ges] = ["MW", None] + [np.mean(gc_grf_ges_MW.iloc[n, i]) for i in range(2, len(columns_grf))]
         gc_grf_ges_MW.loc[gz_counter_ges+1] = ["MW-std", None] + [np.mean(gc_grf_ges_MW.iloc[n, i])-np.std(gc_grf_ges_MW.iloc[n, i]) for i in range(2, len(columns_grf))]   

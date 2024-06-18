@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-def construct_gc_ang_bew_ges(ang_ges, num_gc_ges, trial):
+def construct_gc_ang_bew_ges(ang_ges, num_gc, trial):
     """
     This function reads and prepares the Winkel-Bewegungsumfänge for the right and left foot.
 
-    args: ang_ges: DataFrame, num_gc_ges: int, trial: str
+    args: ang_ges: DataFrame, num_gc: int, trial: str
 
     return: ang_bew_ges: DataFrame
     """
@@ -22,31 +22,33 @@ def construct_gc_ang_bew_ges(ang_ges, num_gc_ges, trial):
         'Thorax 3 Linksrotation', 'Head 1 Rückneigung', 'Head 2 Linksneigung', 'Head 3 Linksrotation'
     ]
     ang_bew_ges = pd.DataFrame(columns=columns_bew)
-
     # Initialize the DataFrame with trial numbers
-    for i in range(num_gc_ges):
+    for i in range(num_gc):
         trial_nn = f"{trial}_{i+1}"
         row = [None] * len(columns_bew)
         row[0] = trial_nn
         ang_bew_ges.loc[i] = row
 
     # Calculate the range of motion for each joint angle
-    for i in range(num_gc_ges):
+    for i in range(num_gc):
         for n in range(2, len(columns_bew)):
-            ang_bew_ges.iloc[i, n] = np.linalg.norm(
-                np.max(ang_ges.iloc[i, n]) - np.min(ang_ges.iloc[i, n])
-            )
+            if ang_ges.iloc[i, n] is not None:
+                ang_bew_ges.iloc[i, n] = np.linalg.norm(
+                    np.max(ang_ges.iloc[i, n]) - np.min(ang_ges.iloc[i, n])
+                )
+            else:
+                ang_bew_ges.iloc[i, n] = 0
 
     # Adding rows for Mean and Standard Deviation
     mw_row = ['MW'] + [None] * (len(columns_bew) - 1)
     std_row = ['Std'] + [None] * (len(columns_bew) - 1)
-    ang_bew_ges.loc[num_gc_ges] = mw_row
-    ang_bew_ges.loc[num_gc_ges + 1] = std_row
+    ang_bew_ges.loc[num_gc] = mw_row
+    ang_bew_ges.loc[num_gc + 1] = std_row
 
     # Calculate Mean and Standard Deviation for each joint angle
     for n in range(2, len(columns_bew)):
-        values = ang_bew_ges.iloc[:num_gc_ges, n].dropna().astype(float)
-        ang_bew_ges.iloc[num_gc_ges, n] = values.mean()
-        ang_bew_ges.iloc[num_gc_ges + 1, n] = values.std()
+        values = ang_bew_ges.iloc[:num_gc, n].dropna().astype(float)
+        ang_bew_ges.iloc[num_gc, n] = values.mean()
+        ang_bew_ges.iloc[num_gc + 1, n] = values.std()
 
     return ang_bew_ges
