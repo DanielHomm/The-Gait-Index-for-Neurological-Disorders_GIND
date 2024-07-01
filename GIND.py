@@ -1,21 +1,62 @@
 # general imports
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 import read_file as rmd
-from varaiables import PATH_TO_DYNAMIC_C3D_FILE, PATH_TO_STATIC_C3D_FILE, WEIGHT, HEIGHT, TRIAL_NAME, FIRST_FOOT, LEFT_FOOT_STRIKE, LEFT_FOOT_OFF, RIGHT_FOOT_STRIKE, RIGHT_FOOT_OFF
+from varaiables import PATH_TO_DYNAMIC_C3D_FILE, PATH_TO_STATIC_C3D_FILE, WEIGHT, HEIGHT, TRIAL_NAME, PLOT, FIRST_FOOT, LEFT_FOOT_STRIKE, LEFT_FOOT_OFF, RIGHT_FOOT_STRIKE, RIGHT_FOOT_OFF
 
 
 def rms(values):
     return np.sqrt(np.mean(np.square(values)))
 
-if __name__ == "__main__":
-    # Adapt path to dynamic and static c3d file
-    #pc =  r'C:\UNI\HIWI\TUM\HIWI_SPM\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody\dyn01.c3d'
+def plot_gind(gind_value, trial_name):
+    y_max = max(8, round(gind_value) + 1)
 
-    #c3d_file = os.path.join(pc, 'dyn01.c3d')
+    fig, ax = plt.subplots()
+
+    ax.plot(trial_name, gind_value, 'ro') #, label=f'{trial_name}: {gind_value}')
+
+    ax.set_ylim(0, y_max)
+
+    ax.axhline(y=1, color='green', linestyle='-', linewidth=1, label='Healthy Movement')
+
+    ax.set_ylabel('Value')
+    ax.set_title('Gind Value')
+
+    ax.legend()
+    plt.show()
+
+
+if __name__ == "__main__":
+    # Provided Variable checks.
+    if not PATH_TO_DYNAMIC_C3D_FILE:
+        raise ValueError("PATH_TO_DYNAMIC_C3D_FILE is an empty string. Please provide a valid file path.")
+    if not PATH_TO_STATIC_C3D_FILE:
+        raise ValueError("PATH_TO_STATIC_C3D_FILE is an empty string. Please provide a valid file path.")
+    if not TRIAL_NAME:
+        raise ValueError("TRIAL_NAME is an empty string. Please provide a valid trial name.")
+    
+    if not isinstance(WEIGHT, int):
+        raise TypeError("WEIGHT must be an integer. Please provide a valid weight.")
+    if not isinstance(HEIGHT, int):
+        raise TypeError("HEIGHT must be an integer. Please provide a valid height.")
+
+    if FIRST_FOOT not in ["right", "left", "Right", "Left", None]:
+        raise ValueError("FIRST_FOOT must be 'right', 'left', or None. Please provide a valid value.")
+
+    if FIRST_FOOT is None:
+        if not isinstance(LEFT_FOOT_STRIKE, list) or not LEFT_FOOT_STRIKE:
+            raise ValueError("LEFT_FOOT_STRIKE must be a non-empty list when FIRST_FOOT is None.")
+        if not isinstance(LEFT_FOOT_OFF, list) or not LEFT_FOOT_OFF:
+            raise ValueError("LEFT_FOOT_OFF must be a non-empty list when FIRST_FOOT is None.")
+        if not isinstance(RIGHT_FOOT_STRIKE, list) or not RIGHT_FOOT_STRIKE:
+            raise ValueError("RIGHT_FOOT_STRIKE must be a non-empty list when FIRST_FOOT is None.")
+        if not isinstance(RIGHT_FOOT_OFF, list) or not RIGHT_FOOT_OFF:
+            raise ValueError("RIGHT_FOOT_OFF must be a non-empty list when FIRST_FOOT is None.")
+
+
+
     c3d_file = PATH_TO_DYNAMIC_C3D_FILE
-    # path c3d file with static data
-    #c3d_file_stat = os.path.join(pc, 'stat01.c3d')
     c3d_file_stat = PATH_TO_STATIC_C3D_FILE
 
     # read marker and force data from c3d file
@@ -166,3 +207,6 @@ if __name__ == "__main__":
     ])
 
     print(V_GPS_gesamt_o)
+
+    if PLOT:
+        plot_gind(V_GPS_gesamt_o, TRIAL_NAME)

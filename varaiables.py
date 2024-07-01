@@ -5,13 +5,16 @@ Please adapt this file with your variables for your test environment.
 # Trial is just a string which can be set differntly for intermediate data frames
 TRIAL_NAME = "dyn01"
 
+# Set PLOT to True or False to choose if you want the GIND plotted in a simple graph (PLOT = True), or to just print the value of the GIND.
+PLOT = True
+
 
 # Path to the dynamic c3d file, output by vicon
 # For Windows it might look like: r'C:\Data\Vicon\Gait FullBody\dyn01.c3d'
-PATH_TO_DYNAMIC_C3D_FILE = "Please enter here your path to the dynamic c3d file."
+PATH_TO_DYNAMIC_C3D_FILE = r'D:\TUM-HIWI\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody\dyn01.c3d'
 
 # Path to the static c3d file, output by vicon (same structure as for the dynamic file)
-PATH_TO_STATIC_C3D_FILE = "Please enter here your path to the static c3d file."
+PATH_TO_STATIC_C3D_FILE = r'D:\TUM-HIWI\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody\stat01.c3d'
 
 # Please set both weight and height to the corresponding integers, set in Vicon for the participant. 
 WEIGHT = 88 #77

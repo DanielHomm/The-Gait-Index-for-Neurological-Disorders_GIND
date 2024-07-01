@@ -117,7 +117,6 @@ def create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx, first_foot=No
         
         for key in ev:
             ev[key] = np.array(ev[key])
-        print(ev)
 
     # Get all data with labels containing the word force
     force = {label: markers["Points"].data[label][:, 0:3] for label in markers["Points"].data.keys() if "Force" in label or "NormalisedGRF" in label}
