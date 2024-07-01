@@ -11,10 +11,10 @@ PLOT = True
 
 # Path to the dynamic c3d file, output by vicon
 # For Windows it might look like: r'C:\Data\Vicon\Gait FullBody\dyn01.c3d'
-PATH_TO_DYNAMIC_C3D_FILE = r'D:\TUM-HIWI\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody\dyn01.c3d'
+PATH_TO_DYNAMIC_C3D_FILE = r'Please enter here your path'
 
 # Path to the static c3d file, output by vicon (same structure as for the dynamic file)
-PATH_TO_STATIC_C3D_FILE = r'D:\TUM-HIWI\Messdaten\Masterarbeit Data\Data final\Christian\Gait FullBody\stat01.c3d'
+PATH_TO_STATIC_C3D_FILE = r'Please enter here your path'
 
 # Please set both weight and height to the corresponding integers, set in Vicon for the participant. 
 WEIGHT = 88 #77

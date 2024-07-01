@@ -15,9 +15,7 @@ def plot_gind(gind_value, trial_name):
     fig, ax = plt.subplots()
 
     ax.plot(trial_name, gind_value, 'ro') #, label=f'{trial_name}: {gind_value}')
-
     ax.set_ylim(0, y_max)
-
     ax.axhline(y=1, color='green', linestyle='-', linewidth=1, label='Healthy Movement')
 
     ax.set_ylabel('Value')

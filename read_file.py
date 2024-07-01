@@ -129,6 +129,7 @@ def create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx, first_foot=No
     ana = markers["Analogs"].data
     mom = {label: markers["Points"].data[label][:, 0:3] for label in markers["Points"].data.keys() if "Moment" in label}
     power = {label: markers["Points"].data[label][:, 0:3] for label in markers["Points"].data.keys() if "Power" in label}
+    
 
     # only static data that is used
     ana_stat = markers_stat["Analogs"].data
