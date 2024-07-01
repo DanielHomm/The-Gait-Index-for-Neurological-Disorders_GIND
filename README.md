@@ -2,7 +2,7 @@
 
 This repository includes a script to calculate the Gait Index for Neurological Disorders: Gind.
 
-If you are only interesting in calculating the GIND for your trials, please adapt the variables according to your trial in
+If you are only interested in calculating the GIND for your trials, please adapt the variables according to your trial in
 varaibles.py.
 
 In requirements.txt you can find the necessary libraries for the needed python environment to run the final script and a short description on how to set up a conda environment with all libraries installed.
