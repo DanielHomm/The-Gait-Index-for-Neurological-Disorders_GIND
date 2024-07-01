@@ -2,7 +2,7 @@
 import numpy as np
 import os
 import read_file as rmd
-from varaiables import PATH_TO_DYNAMIC_C3D_FILE, PATH_TO_STATIC_C3D_FILE, WEIGHT, HEIGHT, TRIAL_NAME, LEFT_FOOT_STRIKE, LEFT_FOOT_OFF, RIGHT_FOOT_STRIKE, RIGHT_FOOT_OFF
+from varaiables import PATH_TO_DYNAMIC_C3D_FILE, PATH_TO_STATIC_C3D_FILE, WEIGHT, HEIGHT, TRIAL_NAME, FIRST_FOOT, LEFT_FOOT_STRIKE, LEFT_FOOT_OFF, RIGHT_FOOT_STRIKE, RIGHT_FOOT_OFF
 
 
 def rms(values):
@@ -19,10 +19,13 @@ if __name__ == "__main__":
     c3d_file_stat = PATH_TO_STATIC_C3D_FILE
 
     # read marker and force data from c3d file
-    event_idx = {"Left_Foot_Strike": LEFT_FOOT_STRIKE, "Left_Foot_Off": LEFT_FOOT_OFF, "Right_Foot_Strike": RIGHT_FOOT_STRIKE, "Right_Foot_Off": RIGHT_FOOT_OFF}
+    if FIRST_FOOT == None:
+        event_idx = {"Left_Foot_Strike": LEFT_FOOT_STRIKE, "Left_Foot_Off": LEFT_FOOT_OFF, "Right_Foot_Strike": RIGHT_FOOT_STRIKE, "Right_Foot_Off": RIGHT_FOOT_OFF}
+    else:
+        event_idx = {}
 
-    FB_mark = rmd.read_marker_data(c3d_file, c3d_file_stat, event_idx, trial=TRIAL_NAME)
-    FB_force = rmd.read_force_data(c3d_file, c3d_file_stat, event_idx, WEIGHT, HEIGHT, trial=TRIAL_NAME)
+    FB_mark = rmd.read_marker_data(c3d_file, c3d_file_stat, FIRST_FOOT, event_idx, trial=TRIAL_NAME)
+    FB_force = rmd.read_force_data(c3d_file, c3d_file_stat, FIRST_FOOT, event_idx, WEIGHT, HEIGHT, trial=TRIAL_NAME)
 
     # include health values for reference and calculations (already calculated from 3 healthy subjects)
     cop_healthy_m = np.load('utils/variables/cop_healthy_m.npy')
@@ -38,7 +41,6 @@ if __name__ == "__main__":
     # array inits for arrays in line 
     row_MW_R= FB_mark["gc_count_mark"]["R_num_gc_ges"] 
     row_MW_L= FB_mark["gc_count_mark"]["L_num_gc_ges"]
-    print(row_MW_R, row_MW_L)
     angles_ges_mean = np.zeros(51)
     g_l = np.zeros(len(para)*angles_ges_mean.shape[0])
     g_r = np.zeros(len(para)*angles_ges_mean.shape[0])
@@ -77,7 +79,6 @@ if __name__ == "__main__":
 
     row_MW_R = FB_force["gc_count_force"]["gz_counter_R_ges"]
     row_MW_L = FB_force["gc_count_force"]["gz_counter_L_ges"]
-    print(row_MW_R, row_MW_L)
     grf_ges_mean = np.zeros(51)
     grf_l_healthy = np.zeros(len(para)*grf_ges_mean.shape[0])
     grf_r_healthy = np.zeros(len(para)*grf_ges_mean.shape[0])

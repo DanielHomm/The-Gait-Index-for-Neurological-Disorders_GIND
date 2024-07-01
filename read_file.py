@@ -53,7 +53,7 @@ def create_data_dicts_btk(c3d_file):
         V_analysis = {names[i]: values[i] for i in range(len(names))}
     return V_analysis, meta_data, ff
 
-def create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx):
+def create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx, first_foot=None):
     """
     This function reads the c3d files and stores its data in dictionaries
     
@@ -78,10 +78,46 @@ def create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx):
     # Get all data with labels containing the word angle
     ang = {label: markers["Points"].data[label][:, 0:3] for label in markers["Points"].data.keys() if "Angle" in label}
     # Get all foot of and foot strike events -> have been defined specificly in Vicon Nexus
-    ev = markers["Points"].events
-    # Condition: Left foot strikes first on the ground !!!!!!!Needs to be adapted for multiple Gait-Cycles!!!!!!! - Kati fragen, wie das beschrieben werden soll für unterschiedliche Beinzyklen
-    
-    ev = {"Left_Foot_Strike": np.array([ev[i].time for i in event_idx["Left_Foot_Strike"]]), "Left_Foot_Off": np.array([ev[i].time for i in event_idx["Left_Foot_Off"]]), "Right_Foot_Strike": np.array([ev[i].time for i in event_idx["Right_Foot_Strike"]]), "Right_Foot_Off": np.array([ev[i].time for i in event_idx["Right_Foot_Off"]])}
+    events = markers["Points"].events
+    first_foot = first_foot.lower() if first_foot is not None else first_foot
+    if first_foot is None or (first_foot != "right" and first_foot != "left"):
+        try:
+            ev = {"Left_Foot_Strike": np.array([events[i].time for i in event_idx["Left_Foot_Strike"]]), 
+                  "Left_Foot_Off": np.array([events[i].time for i in event_idx["Left_Foot_Off"]]), 
+                  "Right_Foot_Strike": np.array([events[i].time for i in event_idx["Right_Foot_Strike"]]),
+                  "Right_Foot_Off": np.array([events[i].time for i in event_idx["Right_Foot_Off"]])}
+        except:
+            raise KeyError("Please check if you put the correct indeces for the strikes and toe offs." +
+                            "If you don't know the exact indeces please provide for the variable first_foot the *left* or *right* to identify the first strike")
+    else:
+        length = len(events)
+        ev = {"Left_Foot_Strike": [], "Left_Foot_Off": [], "Right_Foot_Strike": [], "Right_Foot_Off": []}
+        if first_foot == "right":
+            ev["Right_Foot_Strike"].append(events[0].time)
+            for i in range(0, length, 4):
+                if i + 1 < length:
+                    ev["Left_Foot_Off"].append(events[i + 1].time)
+                if i + 2 < length:
+                    ev["Left_Foot_Strike"].append(events[i + 2].time)
+                if i + 3 < length:
+                    ev["Right_Foot_Off"].append(events[i + 3].time)
+                if i + 4 < length:
+                    ev["Right_Foot_Strike"].append(events[i + 4].time)
+        elif first_foot == "left":
+            ev["Left_Foot_Strike"].append(events[0].time)
+            for i in range(length):
+                if i + 1 < length:
+                    ev["Right_Foot_Off"].append(events[i + 1].time)
+                if i + 2 < length:
+                    ev["Right_Foot_Strike"].append(events[i + 2].time)
+                if i + 3 < length:
+                    ev["Left_Foot_Off"].append(events[i + 3].time)
+                if i + 4 < length:
+                    ev["Left_Foot_Strike"].append(events[i + 4].time)
+        
+        for key in ev:
+            ev[key] = np.array(ev[key])
+        print(ev)
 
     # Get all data with labels containing the word force
     force = {label: markers["Points"].data[label][:, 0:3] for label in markers["Points"].data.keys() if "Force" in label or "NormalisedGRF" in label}
@@ -192,7 +228,7 @@ def create_gz_counter(force_key, gc_xvec, num_gc, num_gc_ges, force, SW_GRFz=1.0
                 gz_counter.append(i)
     return gz_counter
 
-def load_data(c3d_file, c3d_file_stat, event_idx, m_eing=None, h_eing=None, trial="dyn01"):
+def load_data(c3d_file, c3d_file_stat, first_foot, event_idx, m_eing=None, h_eing=None, trial="dyn01"):
     """
     Function to combine the read data functions and general varaible definitions and return all needed data dictionaries.
 
@@ -241,13 +277,13 @@ def load_data(c3d_file, c3d_file_stat, event_idx, m_eing=None, h_eing=None, tria
     else:
         m_eing, h_eing = participant_data()
     
-    ang, ev, force, force_sr, mark, mark_freq, ana, mom, power, ana_stat = create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx=event_idx)
+    ang, ev, force, force_sr, mark, mark_freq, ana, mom, power, ana_stat = create_data_dicts_kinetics(c3d_file, c3d_file_stat, event_idx=event_idx, first_foot= first_foot)
     V_analysis, meta_data, ff = create_data_dicts_btk(c3d_file)
 
     return ang, ev, force, force_sr, mark, mark_freq, V_analysis, ana, mom, power, ana_stat, m_eing, h_eing, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, meta_data, ff
 
 
-def read_force_data(c3d_file, c3d_file_stat, event_idx, weight, height, trial="dyn01"):
+def read_force_data(c3d_file, c3d_file_stat, first_foot, event_idx, weight, height, trial="dyn01"):
     """
     This function reads the force data from the c3d file and processes it to be used in the further analysis.
 
@@ -257,7 +293,7 @@ def read_force_data(c3d_file, c3d_file_stat, event_idx, weight, height, trial="d
     returns:    force_data: Dictionary with the processed force data. Each key holds a pandas dataframe with the corresponding data.
     """
 
-    ang, ev, force, _, _, mark_freq, _, ana, mom, power, ana_stat, m_eing, _, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, _, ff = load_data(c3d_file, c3d_file_stat, event_idx, weight, height, trial=trial)
+    ang, ev, force, _, _, mark_freq, _, ana, mom, power, ana_stat, m_eing, _, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, _, ff = load_data(c3d_file, c3d_file_stat, first_foot, event_idx, weight, height, trial=trial)
     # Assuming ana_stat is a dictionary containing the necessary data
     mass_Korr = 1  # Default value if no mass determination through static
     if 'Force.Fz1' in ana_stat:
@@ -334,7 +370,7 @@ def read_force_data(c3d_file, c3d_file_stat, event_idx, weight, height, trial="d
     return force_data
 
 
-def read_marker_data(c3d_file, c3d_file_stat, event_idx, trial="dyn01"):
+def read_marker_data(c3d_file, c3d_file_stat, first_foot, event_idx, trial="dyn01"):
     """
     This function reads the marker data from the c3d files and processes it to be used in the further analysis.
 
@@ -344,7 +380,7 @@ def read_marker_data(c3d_file, c3d_file_stat, event_idx, trial="dyn01"):
     returns:    
             force_data: Dictionary with the processed force data. Each key holds a pandas dataframe with the corresponding data.
     """
-    ang, ev, force, force_sr, mark, mark_freq, _, ana, _, _, _, _, _, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, _, ff = load_data(c3d_file, c3d_file_stat, event_idx, trial=trial)
+    ang, ev, force, force_sr, mark, mark_freq, _, ana, _, _, _, _, _, R_num_gc_ges, L_num_gc_ges, gz_counter_R_ges, gz_counter_L_ges, SW_GRFz, trial, _, ff = load_data(c3d_file, c3d_file_stat, first_foot, event_idx, trial=trial)
 
     R_Strike, R_ToeOff, L_Strike, L_ToeOff, fto_gc_R, fto_gc_L = get_strikes(ev, mark_freq, ff)
     
